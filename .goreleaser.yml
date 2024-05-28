@@ -8,12 +8,14 @@ release:
 
 builds:
 - id: eeprom-programmer
-  binary: eeprom-programmer
-  main: ./cmd/eeprom-programmer
   goos:
-    - linux
+  - linux
   goarch:
-    - arm64
+  - arm
+  - arm64
+  goarm:
+  - "7"
+  main: ./cmd/eeprom-programmer
   ldflags: -s -w -X main.version={{.Version}}
 
 nfpms:
