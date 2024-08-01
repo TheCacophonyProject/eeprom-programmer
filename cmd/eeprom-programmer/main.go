@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/TheCacophonyProject/tc2-hat-controller/eeprom"
@@ -13,6 +11,28 @@ import (
 	"periph.io/x/conn/v3/i2c/i2creg"
 	"periph.io/x/host/v3"
 )
+
+//LogLevel string      `arg:"-l, --log-level" default:"info" help:"Set the logging level (debug, info, warn, error)"`
+
+type Args struct {
+	MainPCBVersion  string `arg:"--main" help:"Main PCB version"`
+	PowerPCBVersion string `arg:"--power" help:"Main PCB version"`
+	TouchPCBVersion string `arg:"--touch" help:"Main PCB version"`
+	MicPCBVersion   string `arg:"--mic" help:"Main PCB version"`
+	AudioOnly       bool   `arg:"--audio-only" help:"Device only for audio recordings, no lepton module"`
+}
+
+var version = "<not set>"
+
+func (Args) Version() string {
+	return version
+}
+
+func procArgs() Args {
+	args := Args{}
+	arg.MustParse(&args)
+	return args
+}
 
 func main() {
 	if err := runMain(); err != nil {
@@ -23,40 +43,60 @@ func main() {
 func runMain() error {
 	args := procArgs()
 
-	parts := strings.Split(args.PCBVersion, ".")
-	if len(parts) != 3 {
-		return fmt.Errorf("invalid hardware version '%s'", args.PCBVersion)
+	/*
+		parts := strings.Split(args.PCBVersion, ".")
+		if len(parts) != 3 {
+			return fmt.Errorf("invalid hardware version '%s'", args.PCBVersion)
+		}
+
+		major, err := strconv.ParseInt(parts[0], 10, 64)
+		if err != nil {
+			return err
+		}
+		minor, err := strconv.ParseInt(parts[1], 10, 64)
+		if err != nil {
+			return err
+		}
+		patch, err := strconv.ParseInt(parts[2], 10, 64)
+		if err != nil {
+			return err
+		}
+	*/
+
+	mainPcbVersion, err := eeprom.NewSemVer(args.MainPCBVersion)
+	if err != nil {
+		return err
+	}
+	powerPcbVersion, err := eeprom.NewSemVer(args.PowerPCBVersion)
+	if err != nil {
+		return err
+	}
+	touchPcbVersion, err := eeprom.NewSemVer(args.TouchPCBVersion)
+	if err != nil {
+		return err
+	}
+	micPcbVersion, err := eeprom.NewSemVer(args.MicPCBVersion)
+	if err != nil {
+		return err
 	}
 
-	major, err := strconv.ParseInt(parts[0], 10, 64)
-	if err != nil {
-		return err
-	}
-	minor, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil {
-		return err
-	}
-	patch, err := strconv.ParseInt(parts[2], 10, 64)
-	if err != nil {
-		return err
-	}
-
-	eepromData := &eeprom.EepromData{
-		Version: 1,
-		Major:   byte(major),
-		Minor:   byte(minor),
-		Patch:   byte(patch),
-		ID:      eeprom.GenerateRandomID(),
-		Time:    time.Now().Truncate(time.Second),
+	eepromData := &eeprom.EepromDataV2{
+		Version:       2,
+		MainPCB:       *mainPcbVersion,
+		PowerPCB:      *powerPcbVersion,
+		TouchPCB:      *touchPcbVersion,
+		MicrophonePCB: *micPcbVersion,
+		AudioOnly:     args.AudioOnly,
+		ID:            eeprom.GenerateRandomID(),
+		Time:          time.Now().Truncate(time.Second),
 	}
 
 	data := eepromData.WriteData()
 
-	log.Println("Initializing host")
+	log.Println("Initializing I2C")
 	if _, err := host.Init(); err != nil {
 		return err
 	}
-
 	bus, err := i2creg.Open("")
 	if err != nil {
 		return err
@@ -96,20 +136,4 @@ func runMain() error {
 	}
 
 	return nil
-}
-
-var version = "<not set>"
-
-func (Args) Version() string {
-	return version
-}
-
-func procArgs() Args {
-	args := Args{}
-	arg.MustParse(&args)
-	return args
-}
-
-type Args struct {
-	PCBVersion string `arg:"required" help:"Write to a register."`
 }
