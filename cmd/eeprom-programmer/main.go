@@ -15,10 +15,10 @@ import (
 //LogLevel string      `arg:"-l, --log-level" default:"info" help:"Set the logging level (debug, info, warn, error)"`
 
 type Args struct {
-	MainPCBVersion  string `arg:"--main" help:"Main PCB version"`
-	PowerPCBVersion string `arg:"--power" help:"Main PCB version"`
-	TouchPCBVersion string `arg:"--touch" help:"Main PCB version"`
-	MicPCBVersion   string `arg:"--mic" help:"Main PCB version"`
+	MainPCBVersion  string `arg:"--main" help:"Main PCB version, formatted as v#.#.#"`
+	PowerPCBVersion string `arg:"--power" help:"Power PCB version, formatted as v#.#.#"`
+	TouchPCBVersion string `arg:"--touch" help:"Touch PCB version, formatted as v#.#.#"`
+	MicPCBVersion   string `arg:"--mic" help:"Microphone PCB version, formatted as v#.#.#"`
 	AudioOnly       bool   `arg:"--audio-only" help:"Device only for audio recordings, no lepton module"`
 }
 
