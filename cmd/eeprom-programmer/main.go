@@ -12,8 +12,6 @@ import (
 	"periph.io/x/host/v3"
 )
 
-//LogLevel string      `arg:"-l, --log-level" default:"info" help:"Set the logging level (debug, info, warn, error)"`
-
 type Args struct {
 	MainPCBVersion  string `arg:"--main" help:"Main PCB version, formatted as v#.#.#"`
 	PowerPCBVersion string `arg:"--power" help:"Power PCB version, formatted as v#.#.#"`
