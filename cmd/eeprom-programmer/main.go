@@ -41,26 +41,6 @@ func main() {
 func runMain() error {
 	args := procArgs()
 
-	/*
-		parts := strings.Split(args.PCBVersion, ".")
-		if len(parts) != 3 {
-			return fmt.Errorf("invalid hardware version '%s'", args.PCBVersion)
-		}
-
-		major, err := strconv.ParseInt(parts[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		minor, err := strconv.ParseInt(parts[1], 10, 64)
-		if err != nil {
-			return err
-		}
-		patch, err := strconv.ParseInt(parts[2], 10, 64)
-		if err != nil {
-			return err
-		}
-	*/
-
 	mainPcbVersion, err := eeprom.NewSemVer(args.MainPCBVersion)
 	if err != nil {
 		return err
