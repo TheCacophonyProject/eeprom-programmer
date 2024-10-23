@@ -89,7 +89,9 @@ func runMain() error {
 		d := append([]byte{byte(i)}, pageWriteData...)
 		err = bus.Tx(eeprom.EEPROM_ADDRESS, d, nil)
 		if err != nil {
-			log.Println("Error writing EEPROM: ", err)
+			log.Println("Error writing to EEPROM: ", err)
+			log.Println("On version v0.7.0 and above the EEPROM chip WC pin needs to be pulled to ground to enable writing.")
+			log.Println("There is a pad next to the EEPROM chip labeled WC that can be used for that.")
 			return err
 		}
 		time.Sleep(10 * time.Millisecond)
